@@ -31,9 +31,64 @@ You can configure this with the setting:
 
 
 ; Jacking in...
-; Connecting using "Leiningen" project type.
+; Connecting using "Leiningen + Figwheel Main" project type.
 ; You can make Calva auto-select this.
 ;   - See https://calva.io/connect-sequences/
 ; 
 
-; Starting Jack-in: pushd d:\Fakultet\Master\Alati i Metode Vestacke Inteligencije Softverskog Inzenjerstva\Gomoku\gomoku-ai & cmd.exe /d /c lein update-in :dependencies conj [nrepl,"1.3.1"] -- update-in :plugins conj [cider/cider-nrepl,"0.52.1"] -- update-in [:repl-options,:nrepl-middleware] conj '["cider.nrepl/cider-middleware"]' -- repl :headless & popd
+; Starting Jack-in: pushd d:\Fakultet\Master\Alati i Metode Vestacke Inteligencije Softverskog Inzenjerstva\Gomoku\gomoku-ai & cmd.exe /d /c lein update-in :dependencies conj [nrepl,"1.3.1"] -- update-in :dependencies conj [cider/piggieback,"0.6.0"] -- update-in :plugins conj [cider/cider-nrepl,"0.55.4"] -- update-in [:repl-options,:nrepl-middleware] conj '["cider.nrepl/cider-middleware"]' -- update-in [:repl-options,:nrepl-middleware] conj '["cider.piggieback/wrap-cljs-repl"]' -- repl :headless & popd
+; Using host:port 127.0.0.1:55875 ...
+; Hooking up nREPL sessions ...
+; Connected session: clj
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
+nil
+clj꞉user꞉> 
+; Creating cljs repl session...
+; Connecting cljs repl: Leiningen + Figwheel Main...
+; There are no figwheel build files (.cljs.edn) in the project directory.
+; Connection to Figwheel Main aborted.
+; Error while connecting cljs REPL: Aborted
+; Jack-in done.
+clj꞉user꞉> (defn test-board (board/empty-board))
+; Syntax error macroexpanding clojure.core/defn at (output.calva-repl:52:12).
+; board/empty-board - failed: vector? at: [:fn-tail :arity-n :bodies :params] spec: :clojure.core.specs.alpha/param-list
+; (board/empty-board) - failed: vector? at: [:fn-tail :arity-1 :params] spec: :clojure.core.specs.alpha/param-list
+clj꞉user꞉> 
+(def test-board (board/empty-board))
+; Syntax error compiling at (output.calva-repl:57:17).
+; No such namespace: board
+clj꞉user꞉> 
+(require '[gomoku-ai.board :as board])
+nil
+clj꞉user꞉> 
+(def test-board (board/empty-board))
+; Syntax error compiling at (output.calva-repl:64:17).
+; No such var: board/empty-board
+clj꞉user꞉> 
+; nREPL Connection was closed
+; Connecting using "ClojureScript nREPL Server" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+; 
+
+; Connecting ...
+; Reading port file: file:///d%3A/Fakultet/Master/Alati%20i%20Metode%20Vestacke%20Inteligencije%20Softverskog%20Inzenjerstva/Gomoku/gomoku-ai/.nrepl-port ...
+; Using host:port localhost:55875 ...
+; Hooking up nREPL sessions ...
+; Connected session: clj
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
+nil
+clj꞉user꞉> 
+; Creating cljs repl session...
+; Connecting cljs repl: ClojureScript nREPL Server...
+; Connected session: cljs
+; TIPS: You can choose which REPL to use (clj or cljs):
+;    *Calva: Toggle REPL connection*
+;    (There is a button in the status bar for this)
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.cljs'
+; Execution error (IllegalStateException) at user/eval31091 (REPL:80).
+; apropos already refers to: #'clojure.repl/apropos in namespace: user
+"Please see https://calva.io/output/#about-stdout-in-the-repl-window
+about why stdout printed to this file is prepended with `;` to be line comments."
+clj꞉user꞉> 
+; nREPL Connection was closed
