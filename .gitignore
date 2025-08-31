@@ -1,7 +1,8 @@
+# Leiningen & Build Artifacts
 /resources/public/js/compiled/**
 figwheel_server.log
 pom.xml
-*jar
+*.jar
 /lib/
 /classes/
 /out/
@@ -11,3 +12,17 @@ pom.xml
 .lein-plugins/
 .repl
 .nrepl-port
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Clojure Linter Cache
+.clj-kondo/
+
+# VS Code / Calva
+.calva/
+
+# Operating System Files
+.DS_Store
+Thumbs.db
