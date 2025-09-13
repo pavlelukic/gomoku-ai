@@ -1,5 +1,6 @@
 (ns gomoku-ai.core
-  (:require [gomoku-ai.board :as board])
+  (:require [gomoku-ai.board :as board]
+            [clojure.string :as str])
   (:gen-class))
 
 (defn print-board [board]
@@ -20,8 +21,20 @@
            -1 "O  "))))
     (println)))
 
+(defn get-player-input [current-player]
+  (let [player-char (if (= 1 current-player) "X" "O")]
+    (println (str "\nPlayer " player-char "'s turn. Enter row and col (e.x. '3 5'): "))
+    (flush)
+    (try
+      (let [input (str/split (read-line) #"\s+")
+            row (Integer/parseInt (first input))
+            col (Integer/parseInt (second input))]
+        [(- row 1) (- col 1)])
+      (catch Exception ex
+        (println "Invalid input! Please enter two numbers from 1 to 15, separated by a space. (e.x. '3 5')")
+        nil))))
+
 (defn -main
   "Creates an empty board, prints it once, and exits."
-  [& args]
-  (println "--- Testing print-board ---")
+  [& args] 
   (print-board (board/empty-board)))
