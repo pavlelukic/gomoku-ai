@@ -34,7 +34,20 @@
         (println "Invalid input! Please enter two numbers from 1 to 15, separated by a space. (e.x. '3 5')")
         nil))))
 
+(defn game-loop [board current-player]
+  (print-board board)
+  (let [winner (board/check-winner board)]
+    (if winner
+      (println (str "\nGame Over! Player " (if (= 1 winner) "X" "O") " wins!"))
+      (if-let [coords (get-player-input current-player)]
+        (let [new-board (board/place-piece board coords current-player)]
+          (if (= board new-board)
+            (do (println "Invalid move (spot is taken or out of bounds). Try again!")
+                (recur board current-player))
+            (recur new-board (* -1 current-player))))
+        (recur board current-player)))))
+
 (defn -main
-  "Creates an empty board, prints it once, and exits."
+  "Starts the Gomoku game."
   [& args] 
-  (print-board (board/empty-board)))
+  (game-loop (board/empty-board) 1))
