@@ -22,7 +22,6 @@
             (recur))))))
 
 (defn print-board [board]
-
   (print "   ") 
   (dotimes [c board/board-cols]
     (print (format "%-2d " (inc c))))
