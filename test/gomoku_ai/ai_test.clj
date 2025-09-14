@@ -16,13 +16,29 @@
                                   (board/place-piece [5 8] -1))]
                (count (ai/get-valid-moves test-board)) => 221)))
 
-(facts "About the random AI's move selection"
-       (fact "get-best-move always returns a valid, empty spot"
-             (let [test-board (-> (board/empty-board)
-                                  (board/place-piece [1 1] 1)
-                                  (board/place-piece [1 2] -1))
-                   valid-moves (ai/get-valid-moves test-board)
-                   ai-choice (ai/get-best-move test-board)]
-                (true? (some #(= % ai-choice) valid-moves)) => true)))
+
+(facts "About the smarter AI's move selection"
+       (fact "1. The AI makes a winning move"
+             (let [board-setup (-> (board/empty-board)
+                                   (board/place-piece [7 1] -1)
+                                   (board/place-piece [7 2] -1)
+                                   (board/place-piece [7 3] -1)
+                                   (board/place-piece [7 4] -1))]
+               (ai/get-best-move board-setup) => [7 0]))
+       (fact "2. The AI blocks the players winning move"
+             (let [board-setup (-> (board/empty-board)
+                                   (board/place-piece [1 5] 1)
+                                   (board/place-piece [2 5] 1)
+                                   (board/place-piece [3 5] 1)
+                                   (board/place-piece [4 5] 1))]
+               (ai/get-best-move board-setup) => [0 5]))
+       (fact "3. The AI makes a random move if no opporitunity or threat exists."
+             (let [board-setup (-> (board/empty-board)
+                                   (board/place-piece [1 1] 1)
+                                   (board/place-piece [5 5] -1)
+                                   (board/place-piece [4 5] 1))
+                   valid-moves (ai/get-valid-moves board-setup)
+                   ai-choice (ai/get-best-move board-setup)]
+               (true? (some #(= % ai-choice) valid-moves)) => true)))
 
 
