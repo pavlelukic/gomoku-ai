@@ -8,3 +8,8 @@
         col (range board/board-cols)
         :when (= 0 (get-in board [row col]))]
     [row col]))
+
+(defn get-best-move
+  "Very simple AI which finds all valid moves and picks one at random."
+  [board]
+  (rand-nth (get-valid-moves board)))
