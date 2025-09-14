@@ -9,7 +9,39 @@
         :when (= 0 (get-in board [row col]))]
     [row col]))
 
+(defn find-winning-move
+  "Checks if there's a line with four pieces for a given player and one empty spot.
+   If found, returns the coordinates of the empty spot to make the winning move.
+   (Also works for blocking the other players winning move)"
+  [board player]
+  (let [lines-with-coords (concat
+                           ;; Horizontal lines
+                           (for [r (range board/board-rows), c (range (- board/board-cols 4))]
+                             (for [i (range 5)] {:piece (get-in board [r (+ c i)]) :coords [r (+ c i)]}))
+                           ;; Vertical lines
+                           (for [r (range (- board/board-rows 4)), c (range board/board-cols)]
+                             (for [i (range 5)] {:piece (get-in board [(+ r i) c]) :coords [(+ r i) c]}))
+                           ;; Diagonal (down-right \)
+                           (for [r (range (- board/board-rows 4)), c (range (- board/board-cols 4))]
+                             (for [i (range 5)] {:piece (get-in board [(+ r i) (+ c i)]) :coords [(+ r i) (+ c i)]}))
+                           ;; Diagonal (up-right /)
+                           (for [r (range 4 board/board-rows), c (range (- board/board-cols 4))]
+                             (for [i (range 5)] {:piece (get-in board [(- r i) (+ c i)]) :coords [(- r i) (+ c i)]})))]
+    (some (fn [line]
+            (let [pieces (map :piece line)
+                  counts (frequencies pieces)]
+              (when (and (= (get counts player 0) 4)
+                         (= (get counts 0 0) 1))
+                (:coords (first (filter #(= 0 (:piece %)) line))))))
+          lines-with-coords)))
+
 (defn get-best-move
-  "Very simple AI which finds all valid moves and picks one at random."
+  "The AI's main decision function."
   [board]
-  (rand-nth (get-valid-moves board)))
+  (or
+   ;;1. Find winning move for AI if possible
+   (find-winning-move board -1)
+   ;;2. Block players winning move if possible
+   (find-winning-move board 1)
+   ;;3. Otherwise, make a random move
+   (rand-nth (get-valid-moves board))))
