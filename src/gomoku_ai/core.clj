@@ -1,7 +1,25 @@
 (ns gomoku-ai.core
   (:require [gomoku-ai.board :as board]
+            [gomoku-ai.ai :as ai]
             [clojure.string :as str])
   (:gen-class))
+
+(defn choose-game-mode []
+  (loop []
+    (println "\n*** GOMOKU ***")
+    (println "\nChoose your game mode: ")
+    (println "\n1. Human vs. Human")
+    (println "2. Human vs. AI")
+    (println "3. Exit the game")
+    (print "\n> ")
+    (flush)
+    (let [choice (read-line)]
+      (case choice
+        "1" :human
+        "2" :ai
+        "3" :exit
+        (do (println "Invalid choice! Please enter 1, 2 or 3.")
+            (recur))))))
 
 (defn print-board [board]
 
@@ -27,8 +45,7 @@
 
 (defn get-player-input [current-player]
   (let [player-char (if (= 1 current-player) "X" "O")]
-    (println (str "\nPlayer " player-char "'s turn. Enter row and col (e.x. '3 5'): "))
-    (flush)
+    (prompt (str "\nPlayer " player-char "'s turn. Enter row and col (e.x., '3 5'):  "))
     (try
       (let [input (str/split (read-line) #"\s+")
             row (Integer/parseInt (first input))
@@ -38,32 +55,38 @@
         (println "Invalid input! Please enter two numbers from 1 to 15, separated by a space. (e.x. '3 5')")
         nil))))
 
-(defn get-player-input [current-player]
-  (let [player-char (if (= 1 current-player) "X" "O")]
-    (prompt (str "\nPlayer " player-char "'s turn. Enter row and col (e.x., '3 5'):"))
-    (try
-      (let [input (str/split (read-line) #"\s+")
-            row (Integer/parseInt (first input))
-            col (Integer/parseInt (second input))]
-        [(- row 1) (- col 1)])
-      (catch Exception ex
-        (println "Invalid input! Please enter two numbers from 1 to 15, separated by a space. (e.x. '3 5')")
-        nil))))
-
-(defn game-loop [board current-player]
+(defn game-loop [board current-player game-mode]
   (print-board board)
   (let [winner (board/check-winner board)]
     (if winner
       (println (str "\nGame Over! Player " (if (= 1 winner) "X" "O") " wins!"))
-      (if-let [coords (get-player-input current-player)]
-        (let [new-board (board/place-piece board coords current-player)]
-          (if (= board new-board)
-            (do (println "Invalid move (spot is taken or out of bounds). Try again!")
-                (recur board current-player))
-            (recur new-board (* -1 current-player))))
-        (recur board current-player)))))
-
+      ;; --- Player X's Turn (Human) ---
+      (if (= 1 current-player)
+        (if-let [coords (get-player-input current-player)]
+          (let [new-board (board/place-piece board coords current-player)]
+            (if (= board new-board)
+              (do (println "Invalid move! Try again.") (recur board current-player game-mode))
+              (recur new-board -1 game-mode)))
+          (recur board current-player game-mode))
+        ;; --- Player O's Turn (Human or AI) ---
+        (if (= game-mode :ai)
+          (do
+            (println "\nAI's turn (Player O)...")
+            (Thread/sleep 1000)
+            (let [ai-move (ai/get-best-move board)
+                  new-board (board/place-piece board ai-move -1)]
+              (recur new-board 1 game-mode)))
+          (if-let [coords (get-player-input current-player)]
+            (let [new-board (board/place-piece board coords current-player)]
+              (if (= board new-board) 
+                (do (println "Invalid move! Try again.") (recur board current-player game-mode)) 
+                (recur new-board 1 game-mode))) 
+            (recur board current-player game-mode)))))))
+            
 (defn -main
-  "Starts the Gomoku game."
+  "Starts the Gomoku game after asking for the game mode."
   [& args] 
-  (game-loop (board/empty-board) 1))
+  (let [game-mode (choose-game-mode)]
+    (when (not= game-mode :exit)
+      (game-loop (board/empty-board) 1 game-mode))))
+    
