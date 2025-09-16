@@ -32,6 +32,12 @@
              (ai/score-line [1 -1 1 -1 0]) => 0
              (ai/score-line [0 0 0 0 0]) => 0))
 
+(fact "evaluate-board correctly sums the scores of all lines"
+      (let [test-board (-> (board/empty-board)
+                           (board/place-piece [7 7] -1)
+                           (board/place-piece [7 8] -1))]
+        (ai/evaluate-board test-board) => 40))
+
 (facts "About the smarter AI's move selection"
        (fact "1. The AI makes a winning move"
              (let [board-setup (-> (board/empty-board)
