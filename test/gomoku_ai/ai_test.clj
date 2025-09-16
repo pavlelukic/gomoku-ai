@@ -39,27 +39,40 @@
         (ai/evaluate-board test-board) => 40))
 
 (facts "About the smarter AI's move selection"
-       (fact "1. The AI makes a winning move"
+       (fact "Both difficulties make a winning move"
              (let [board-setup (-> (board/empty-board)
                                    (board/place-piece [7 1] -1)
                                    (board/place-piece [7 2] -1)
                                    (board/place-piece [7 3] -1)
                                    (board/place-piece [7 4] -1))]
-               (ai/get-best-move board-setup) => [7 0]))
-       (fact "2. The AI blocks the players winning move"
+               (ai/get-best-move board-setup :ai-easy) => [7 0]
+               (ai/get-best-move board-setup :ai-hard) => [7 0]))
+       (fact "Both difficulties block the players winning move"
              (let [board-setup (-> (board/empty-board)
                                    (board/place-piece [1 5] 1)
                                    (board/place-piece [2 5] 1)
                                    (board/place-piece [3 5] 1)
                                    (board/place-piece [4 5] 1))]
-               (ai/get-best-move board-setup) => [0 5]))
-       (fact "3. The AI makes a random move if no opporitunity or threat exists."
+               (ai/get-best-move board-setup :ai-easy) => [0 5]
+               (ai/get-best-move board-setup :ai-hard) => [0 5]))
+       (fact "The Easy AI makes a random move when no threats exist"
              (let [board-setup (-> (board/empty-board)
-                                   (board/place-piece [1 1] 1)
+                                   (board/place-piece [0 0] 1)
                                    (board/place-piece [5 5] -1)
                                    (board/place-piece [4 5] 1))
                    valid-moves (ai/get-valid-moves board-setup)
-                   ai-choice (ai/get-best-move board-setup)]
+                   ai-choice (ai/get-best-move board-setup :ai-easy)]
                (true? (some #(= % ai-choice) valid-moves)) => true)))
+
+(facts "About the find-best-heuristic-move function"
+       (fact "it chooses a move that builds a line over a natural move"
+             (let [board-setup (-> (board/empty-board)
+                                   (board/place-piece [0 0] 1)
+                                   (board/place-piece [7 7] -1))
+                   heuristic-choice (ai/find-best-heuristic-move board-setup)
+                   strategic-moves #{[6 6] [6 7] [6 8]
+                                     [7 6]       [7 8]
+                                     [8 6] [8 7] [8 8]}]
+               (contains? strategic-moves heuristic-choice) => true)))
 
 
