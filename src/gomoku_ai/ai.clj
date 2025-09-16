@@ -79,13 +79,26 @@
                 (:coords (first (filter #(= 0 (:piece %)) line))))))
           lines-with-coords)))
 
+(defn find-best-heuristic-move
+  "Finds the best move by evaluating the score of every possible valid move."
+  [board]
+  (let [valid-moves (get-valid-moves board)]
+    (if (seq valid-moves)
+      (->> valid-moves
+           (map (fn [move]
+                  {:move move
+                   :score (evaluate-board (board/place-piece board move -1))}))
+           (apply max-key :score)
+           :move)
+      nil)))
+
 (defn get-best-move
-  "The AI's main decision function."
+  "The AI's main decision function with a full strategy."
   [board]
   (or
    ;;1. Find winning move for AI if possible
    (find-winning-move board -1)
    ;;2. Block players winning move if possible
    (find-winning-move board 1)
-   ;;3. Otherwise, make a random move
-   (rand-nth (get-valid-moves board))))
+   ;;3. Otherwise, make the best strategic (heuristic) move
+   (find-best-heuristic-move board)))
