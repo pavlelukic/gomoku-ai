@@ -27,7 +27,7 @@
       (for [r (range 4 board/board-rows), c (range (- board/board-cols 4))]
         (for [i (range 5)] [(- r i) (+ c i)]))))))
 
-(defn- score-line
+(defn score-line
   "Calculates a score for a single line of 5 pieces."
   [line]
   (let [counts (frequencies line)

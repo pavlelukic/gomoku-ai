@@ -16,6 +16,21 @@
                                   (board/place-piece [5 8] -1))]
                (count (ai/get-valid-moves test-board)) => 221)))
 
+(facts "About scoring a single line"
+       (fact "it correctly scores offensive opporitunities for the AI"
+             (ai/score-line [-1 -1 -1 -1 0]) => 10000
+             (ai/score-line [0 -1 -1 -1 0]) => 100
+             (ai/score-line [0 -1 -1 0 0]) => 10)
+       
+       (fact "it correctly scores defensive threats from the player"
+             (ai/score-line [1 1 1 1 0]) => -50000
+             (ai/score-line [0 1 1 1 0]) => -500
+             (ai/score-line [0 1 1 0 0]) => -50)
+       
+       (fact "it gives no score to blocked or neutral lines"
+             (ai/score-line [1 1 1 1 -1]) => 0
+             (ai/score-line [1 -1 1 -1 0]) => 0
+             (ai/score-line [0 0 0 0 0]) => 0))
 
 (facts "About the smarter AI's move selection"
        (fact "1. The AI makes a winning move"
