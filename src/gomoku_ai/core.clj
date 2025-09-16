@@ -9,16 +9,18 @@
     (println "\n*** GOMOKU ***")
     (println "\nChoose your game mode: ")
     (println "\n1. Human vs. Human")
-    (println "2. Human vs. AI")
-    (println "3. Exit the game")
+    (println "2. Human vs. AI (Easy)")
+    (println "3. Human vs. AI (Hard)")
+    (println "4. Exit the game")
     (print "\n> ")
     (flush)
     (let [choice (read-line)]
       (case choice
         "1" :human
-        "2" :ai
-        "3" :exit
-        (do (println "Invalid choice! Please enter 1, 2 or 3.")
+        "2" :ai-easy
+        "3" :ai-hard
+        "4" :exit
+        (do (println "Invalid choice! Please enter 1, 2, 3 or 4.")
             (recur))))))
 
 (defn print-board [board]
@@ -59,28 +61,32 @@
   (let [winner (board/check-winner board)]
     (if winner
       (println (str "\nGame Over! Player " (if (= 1 winner) "X" "O") " wins!"))
-      ;; --- Player X's Turn (Human) ---
       (if (= 1 current-player)
+        ;; --- Player X's Turn (Human) --- 
         (if-let [coords (get-player-input current-player)]
           (let [new-board (board/place-piece board coords current-player)]
             (if (= board new-board)
-              (do (println "Invalid move! Try again.") (recur board current-player game-mode))
+              (do (println "Invalid move. Try again.") (recur board current-player game-mode))
               (recur new-board -1 game-mode)))
           (recur board current-player game-mode))
         ;; --- Player O's Turn (Human or AI) ---
-        (if (= game-mode :ai)
+        (if (= game-mode :human) 
+          ;; --- Human ---
+          (if-let [coords (get-player-input current-player)]
+            (let [new-board (board/place-piece board coords current-player)]
+              (if (= board new-board)
+                (do (println "Invalid move. Try again.") (recur board current-player game-mode))
+                (recur new-board 1 game-mode)))
+            (recur board current-player game-mode))
+          ;; --- AI ---
           (do
             (println "\nAI's turn (Player O)...")
             (Thread/sleep 1000)
-            (let [ai-move (ai/get-best-move board)
-                  new-board (board/place-piece board ai-move -1)]
-              (recur new-board 1 game-mode)))
-          (if-let [coords (get-player-input current-player)]
-            (let [new-board (board/place-piece board coords current-player)]
-              (if (= board new-board) 
-                (do (println "Invalid move! Try again.") (recur board current-player game-mode)) 
-                (recur new-board 1 game-mode))) 
-            (recur board current-player game-mode)))))))
+            (let [ai-move (ai/get-best-move board game-mode)
+                  [row col] ai-move]
+              (println (str "\nAI places piece at row " (inc row) ", col " (inc col) ".\n"))
+              (let [new-board (board/place-piece board ai-move -1)]
+                (recur new-board 1 game-mode)))))))))
             
 (defn -main
   "Starts the Gomoku game after asking for the game mode."
@@ -88,4 +94,3 @@
   (let [game-mode (choose-game-mode)]
     (when (not= game-mode :exit)
       (game-loop (board/empty-board) 1 game-mode))))
-    

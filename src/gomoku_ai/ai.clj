@@ -93,12 +93,12 @@
       nil)))
 
 (defn get-best-move
-  "The AI's main decision function with a full strategy."
-  [board]
-  (or
-   ;;1. Find winning move for AI if possible
-   (find-winning-move board -1)
-   ;;2. Block players winning move if possible
-   (find-winning-move board 1)
-   ;;3. Otherwise, make the best strategic (heuristic) move
-   (find-best-heuristic-move board)))
+  "The AI's main decision function with a full strategy. Takes a game mode and returns the best move."
+  [board game-mode]
+  (let [win-move (find-winning-move board -1)
+        block-move (find-winning-move board 1)]
+    (or win-move
+        block-move
+        (if (= game-mode :ai-hard)
+          (find-best-heuristic-move board) ;; Hard mode - uses heuristics
+          (rand-nth (get-valid-moves board)))))) ;; Easy mode - makes random moves
