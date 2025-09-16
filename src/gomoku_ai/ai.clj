@@ -9,6 +9,24 @@
         :when (= 0 (get-in board [row col]))]
     [row col]))
 
+(def ^:private all-lines
+  "A pre-calculated list of all possible 5-in-a-row line coordinates"
+  (memoize
+   (fn []
+     (concat
+      ;; Horizontal lines
+      (for [r (range board/board-rows), c (range (- board/board-cols 4))]
+        (for [i (range 5)] [r (+ c i)]))
+      ;; Vertical lines
+      (for [r (range (- board/board-rows 4)), c (range board/board-cols)]
+        (for [i (range 5)] [(+ r i) c]))
+      ;; Diagonal (down-right \)
+      (for [r (range (- board/board-rows 4)), c (range (- board/board-cols 4))]
+        (for [i (range 5)] [(+ r i) (+ c i)]))
+      ;; Diagonal (up-right /)
+      (for [r (range 4 board/board-rows), c (range (- board/board-cols 4))]
+        (for [i (range 5)] [(- r i) (+ c i)]))))))
+
 (defn find-winning-move
   "Checks if there's a line with four pieces for a given player and one empty spot.
    If found, returns the coordinates of the empty spot to make the winning move.
