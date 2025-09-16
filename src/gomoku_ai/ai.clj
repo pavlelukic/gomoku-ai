@@ -27,6 +27,24 @@
       (for [r (range 4 board/board-rows), c (range (- board/board-cols 4))]
         (for [i (range 5)] [(- r i) (+ c i)]))))))
 
+(defn- score-line
+  "Calculates a score for a single line of 5 pieces."
+  [line]
+  (let [counts (frequencies line)
+        ai-pieces (get counts -1 0)
+        human-pieces (get counts 1 0)]
+    (cond
+      ;; The AI wins or is close to winning
+      (and (= ai-pieces 4) (= human-pieces 0)) 10000
+      (and (= ai-pieces 3) (= human-pieces 0)) 100
+      (and (= ai-pieces 2) (= human-pieces 0)) 10
+      ;; The Player wins or is close to winning
+      (and (= human-pieces 4) (= ai-pieces 0)) -50000
+      (and (= human-pieces 3) (= ai-pieces 0)) -500
+      (and (= human-pieces 2) (= ai-pieces 0)) -50
+      :else 0)))
+
+
 (defn find-winning-move
   "Checks if there's a line with four pieces for a given player and one empty spot.
    If found, returns the coordinates of the empty spot to make the winning move.
