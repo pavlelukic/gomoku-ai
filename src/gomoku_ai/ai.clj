@@ -44,6 +44,14 @@
       (and (= human-pieces 2) (= ai-pieces 0)) -50
       :else 0)))
 
+(defn evaluate-board
+  "Evaluates the entire board by summing the scores of all possible lines."
+  [board]
+  (reduce (fn [total-score line-coords]
+            (let [line-pieces (map #(get-in board %) line-coords)]
+              (+ total-score (score-line line-pieces))))
+          0
+          (all-lines)))
 
 (defn find-winning-move
   "Checks if there's a line with four pieces for a given player and one empty spot.
