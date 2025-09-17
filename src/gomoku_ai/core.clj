@@ -59,33 +59,39 @@
 (defn game-loop [board current-player game-mode]
   (print-board board)
   (let [winner (board/check-winner board)]
-    (if winner
+    (cond
+      winner
       (println (str "\nGame Over! Player " (if (= 1 winner) "X" "O") " wins!"))
+      
+      (empty? (ai/get-valid-moves board))
+      (println "\nGame Over! It's a draw.")
+
+      :else 
       (if (= 1 current-player)
-        ;; --- Player X's Turn (Human) --- 
+        ;; --- Player X's Turn (Human) ---  
         (if-let [coords (get-player-input current-player)]
           (let [new-board (board/place-piece board coords current-player)]
             (if (= board new-board)
               (do (println "Invalid move. Try again.") (recur board current-player game-mode))
               (recur new-board -1 game-mode)))
           (recur board current-player game-mode))
-        ;; --- Player O's Turn (Human or AI) ---
-        (if (= game-mode :human) 
-          ;; --- Human ---
+        ;; --- Player O's Turn (Human or AI) --- 
+        (if (= game-mode :human)
+          ;; --- Human --- 
           (if-let [coords (get-player-input current-player)]
             (let [new-board (board/place-piece board coords current-player)]
               (if (= board new-board)
                 (do (println "Invalid move. Try again.") (recur board current-player game-mode))
                 (recur new-board 1 game-mode)))
             (recur board current-player game-mode))
-          ;; --- AI ---
-          (do
-            (println "\nAI's turn (Player O)...")
-            (Thread/sleep 1000)
-            (let [ai-move (ai/get-best-move board game-mode)
-                  [row col] ai-move]
-              (println (str "\nAI places piece at row " (inc row) ", col " (inc col) ".\n"))
-              (let [new-board (board/place-piece board ai-move -1)]
+          ;; --- AI ---  
+          (do 
+            (println "\nAI's turn (Player O)...") 
+            (Thread/sleep 1000) 
+            (let [ai-move (ai/get-best-move board game-mode) 
+                  [row col] ai-move] 
+              (println (str "\nAI places piece at row " (inc row) ", col " (inc col) ".\n")) 
+              (let [new-board (board/place-piece board ai-move -1)] 
                 (recur new-board 1 game-mode)))))))))
             
 (defn -main
