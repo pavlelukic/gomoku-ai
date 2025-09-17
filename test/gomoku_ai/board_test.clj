@@ -19,10 +19,16 @@
                      board-after-invalid (board/place-piece board-with-piece [5 5] -1)]
                  board-after-invalid => board-with-piece))))
 
-(fact "The check-winner function correctly identifies a winner"
-       (let [board (board/empty-board)
-             winning-board (reduce (fn [board col] (board/place-piece board [7 col] -1))
-                                   board
-                                   (range 5))]
-         (board/check-winner board) => nil
-         (board/check-winner winning-board) => -1))
+(facts "The check-winner function correctly identifies a winner"
+      (let [board (board/empty-board)
+            winning-line [[7 0] [7 1] [7 2] [7 3] [7 4]]
+            winning-board (reduce (fn [b coords] (board/place-piece b coords -1))
+                                  board
+                                  winning-line)]
+        (fact "it returns nil for a non-winning board"
+              (board/check-winner board) => nil)
+        
+        (fact "it returns the winner and the correct line for a winning board"
+              (let [result (board/check-winner winning-board)]
+                (:winner result) => -1
+                (:line result) => winning-line))))
