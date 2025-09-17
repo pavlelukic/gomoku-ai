@@ -2,10 +2,6 @@
 
 A classic Gomoku (Five-in-a-Row) game implemented in Clojure, playable from the command line. This project features multiple game modes, including a challenging AI opponent with a heuristic-based strategy. This was developed as a master's project using test-driven development and AI fundamentals in a functional programming paradigm.
 
-## Installation
-
-Download from http://example.com/FIXME.
-
 ## Features
 
 - **Classic Gomoku Rules**: The first player to make an unbroken line of five of their pieces (horizontally, vertically, diagonally (both ways)) is the winner.
@@ -39,7 +35,7 @@ To get the project up and running on your local machine, follow these instructio
 
 - A Java Development Kit (JDK), version 11 or higher (I used 17)
 
-* The [Leinegen](https://leinegen.org/) build tool for Clojure.
+* The [Leiningen](https://leiningen.org) build tool for Clojure.
 
 ### Installation and Running
 
