@@ -18,24 +18,25 @@
 
 (defn check-winner
   "Checks the board for a winner in all four directions.
-  Returns 1 or 2 if a player has won, otherwise returns nil."
+  Returns a map with the winner and the winning line, otherwise returns nil."
   [board]
-  (let [lines (concat
+  (let [lines-with-coords (concat
                ;; Horizontal lines
                (for [r (range board-rows), c (range (- board-cols 4))]
-                 (for [i (range 5)] (get-in board [r (+ c i)])))
+                 (for [i (range 5)] [r (+ c i)]))
                ;; Vertical lines
                (for [r (range (- board-rows 4)), c (range board-cols)]
-                 (for [i (range 5)] (get-in board [(+ r i) c])))
+                 (for [i (range 5)] [(+ r i) c]))
                ;; Diagonal (down-right \)
                (for [r (range (- board-rows 4)), c (range (- board-cols 4))]
-                 (for [i (range 5)] (get-in board [(+ r i) (+ c i)])))
+                 (for [i (range 5)] [(+ r i) (+ c i)]))
                ;; Diagonal (up-right /)
                (for [r (range 4 board-rows), c (range (- board-cols 4))]
-                 (for [i (range 5)] (get-in board [(- r i) (+ c i)]))))]
+                 (for [i (range 5)] [(- r i) (+ c i)])))]
 
-    (some (fn [line]
-            (let [first-piece (first line)]
-              (when (and (not= 0 first-piece) (every? #(= first-piece %) line))
-                first-piece)))
-          lines)))
+    (some (fn [line-coords]
+            (let [pieces (map #(get-in board %) line-coords)
+                  first-piece (first pieces)]
+              (when (and (not= 0 first-piece) (every? #(= first-piece %) pieces))
+                {:winner first-piece, :line line-coords})))
+                lines-with-coords)))

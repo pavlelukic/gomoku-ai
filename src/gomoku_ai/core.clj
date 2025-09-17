@@ -23,23 +23,27 @@
         (do (println "Invalid choice! Please enter 1, 2, 3 or 4.")
             (recur))))))
 
-(defn print-board [board]
-  (print "   ") 
-  (dotimes [c board/board-cols]
-    (print (format "%-2d " (inc c))))
-  (println)
-  
-  (dotimes [r board/board-rows]
-    (print (format "%-2d " (inc r)))
-    (doseq [c (range board/board-cols)]
-      (let [piece (get-in board [r c])]
-        (print
-         (case piece
-           0 ".  "
-           1 "X  "
-           -1 "O  "))))
-    (println)))
-
+(defn print-board
+  ([board] (print-board board nil))
+  ([board winning-line]
+   (let [winning-coords (set winning-line)]
+     (print "   ")
+     (dotimes [c board/board-cols]
+       (print (format "%-2d " (inc c))))
+     (println)
+     (dotimes [r board/board-rows]
+       (print (format "%-2d " (inc r)))
+       (doseq [c (range board/board-cols)]
+         (let [piece (get-in board [r c])]
+           (print
+            (if (contains? winning-coords [r c])
+              "#  " 
+              (case piece 
+                0 ".  " 
+                1 "X  " 
+                -1 "O  "))))) 
+       (println)))))
+   
 (defn prompt [message]
   (println message)
   (flush))
@@ -53,45 +57,43 @@
             col (Integer/parseInt (second input))]
         [(- row 1) (- col 1)])
       (catch Exception ex
-        (println "Invalid input! Please enter two numbers from 1 to 15, separated by a space. (e.x. '3 5')")
+        (println "Invalid input! Please enter two numbers from 1 to 15, separated by a space. (e.x. '3 5')\n")
         nil))))
 
 (defn game-loop [board current-player game-mode]
-  (print-board board)
-  (let [winner (board/check-winner board)]
-    (cond
-      winner
-      (println (str "\nGame Over! Player " (if (= 1 winner) "X" "O") " wins!"))
-      
-      (empty? (ai/get-valid-moves board))
+  (print-board board) 
+  (if-let [result (board/check-winner board)] 
+    (do
+      (println (str "\nGame Over! Player " (if (= 1 (:winner result)) "X" "O") " wins!"))
+      (println "Winning line highlighted:")
+      (print-board board (:line result))) 
+    (if (empty? (ai/get-valid-moves board))
       (println "\nGame Over! It's a draw.")
-
-      :else 
       (if (= 1 current-player)
-        ;; --- Player X's Turn (Human) ---  
+        ;; Player X's Turn (Human)
         (if-let [coords (get-player-input current-player)]
           (let [new-board (board/place-piece board coords current-player)]
             (if (= board new-board)
               (do (println "Invalid move. Try again.") (recur board current-player game-mode))
               (recur new-board -1 game-mode)))
           (recur board current-player game-mode))
-        ;; --- Player O's Turn (Human or AI) --- 
+        ;; Player O's Turn (Human or AI)
         (if (= game-mode :human)
-          ;; --- Human --- 
+          ;; Human
           (if-let [coords (get-player-input current-player)]
             (let [new-board (board/place-piece board coords current-player)]
               (if (= board new-board)
                 (do (println "Invalid move. Try again.") (recur board current-player game-mode))
                 (recur new-board 1 game-mode)))
             (recur board current-player game-mode))
-          ;; --- AI ---  
-          (do 
-            (println "\nAI's turn (Player O)...") 
-            (Thread/sleep 1000) 
-            (let [ai-move (ai/get-best-move board game-mode) 
-                  [row col] ai-move] 
-              (println (str "\nAI places piece at row " (inc row) ", col " (inc col) ".\n")) 
-              (let [new-board (board/place-piece board ai-move -1)] 
+          ;; AI
+          (do
+            (println "\nAI's turn (Player O)...")
+            (Thread/sleep 1000)
+            (let [ai-move (ai/get-best-move board game-mode)
+                  [row col] ai-move]
+              (println (str "AI places piece at row " (inc row) ", col " (inc col) "."))
+              (let [new-board (board/place-piece board ai-move -1)]
                 (recur new-board 1 game-mode)))))))))
             
 (defn -main
